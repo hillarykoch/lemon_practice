@@ -1,14 +1,14 @@
 # Make a LGF (LEMON Graph Format) file to read with LEMON
 
-setwd("~/Box Sync/School/research - Qunhua/Project_2/pGMCM/R/R/")
+setwd("~/Desktop/lemon_practice/lemon_practice/")
 library(tidyverse)
 library(abind)
 load("assembly_fits.Rdata")
-source("~/Desktop/lemon_practice/assembly_lemons.R")
+source("assembly_lemons.R")
 
 h <- get_h(fits)
 d <- 3
-path = "~/Desktop/lemon_practice/lgf.txt"
+path = "~/Desktop/lemon_practice/lemon_practice/lgf.txt"
 
 make_LGF <- function(h, d, path) {
     # Make node section of LGF file

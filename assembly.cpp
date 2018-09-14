@@ -106,9 +106,10 @@ int main() {
 			}
 		}
 		std::sort(all_paths.begin(), all_paths.end()); // Put it in order of how we progress through the graph
+		num_paths++;
     }
 
-
+    // Making sure that the number of arcs in the instantiated graph is correct
     count = 0;
     for(ListDigraph::ArcIt a(gr); a != INVALID; ++a) {
     	if(enumeration.filter(a) == true) {
@@ -117,18 +118,20 @@ int main() {
     }
     std::cout << "There are " << count << " arcs in the instantiation of enumeration." << std::endl;
 
+    // Taking a look at which nodes are in the current enumeration
     for(int i=0; i < d; i++) {
     	std::cout << gr.id(enumeration[i]) << std::endl;
     }
 
-	count = 0;    
+    // Popping the last node hopefully
     for(ListDigraph::NodeIt u(gr); u != INVALID; ++u) {
-    	if((count % 2) == 0) {
+    	if (u == enumeration[d-1]){
+            std::cout << "entered" << std::endl;
     		enumeration.pop(u);
     	}
-    	count++;
     }
 
+    // Taking a look at which nodes are in the current enumeration (should be one less)
     for(int i=0; i < d; i++) {
     	std::cout << gr.id(enumeration[i]) << std::endl;
     }
