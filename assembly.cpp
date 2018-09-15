@@ -4,9 +4,15 @@
 #include <lemon/lgf_reader.h>
 #include <lemon/dfs.h>
 #include <lemon/adaptors.h>
+#include <stdexcept>
 
 using namespace lemon;
 using namespace std;
+
+class WrongValueException : public std::runtime_error {
+    public:
+        WrongValueException(string mess): std::runtime_error(mess) {}
+};
 
 struct node {
     int data;
@@ -79,14 +85,12 @@ class llist {
 
     void remove_first() {
         if(head == tail) {
-            std::cout << "entered head == tail";
+            // If there is only one node, point head and tail to null
             head = NULL;
             tail = NULL;
         }
-        if (head == NULL) {
-            std::cout << "entered head == NULL";
-            throw "llist is empty, cannot remove a node";
-        }
+        
+        // currently not handling exception when list is empty
 
         node *temp = new node;
         temp = head;
@@ -96,14 +100,12 @@ class llist {
 
     void remove_last() {
         if (head == tail) {
-            std::cout << "entered head == tail";
+            // If there is only one node, point head and tail to null
             head = NULL;
             tail = NULL;
         }
-        if (head == NULL) {
-            std::cout << "entered head == NULL";
-            throw "llist is empty, cannot remove a node";
-        }
+
+        // currently not handling exception when list is empty
 
         node *curr = new node;
         node *prev = new node;
