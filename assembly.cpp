@@ -9,11 +9,6 @@
 using namespace lemon;
 using namespace std;
 
-class WrongValueException : public std::runtime_error {
-    public:
-        WrongValueException(string mess): std::runtime_error(mess) {}
-};
-
 struct node {
     int data;
     node *next; // pointer called "next" points to node
