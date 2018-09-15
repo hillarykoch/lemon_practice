@@ -8,6 +8,116 @@
 using namespace lemon;
 using namespace std;
 
+struct node {
+    int data;
+    node *next; // pointer called "next" points to node
+};
+
+class llist {
+    private:
+        node *head;
+        node *tail;
+
+    public:
+        llist() {
+            head = NULL;
+            tail = NULL;
+        }
+
+    void add_node(int value) {
+      node *temp = new node;
+      temp->data = value;
+      temp->next = NULL;
+      if(head == NULL) {
+        head = temp;
+        tail = temp;
+        temp = NULL;
+      } else {
+        tail->next = temp;
+        tail = temp;
+      }
+    }
+
+    void display() {
+        node *temp = new node; // allocate new memory for a pointer
+        temp = head;
+    
+        while(temp != NULL) {
+            std::cout << temp->data << "->";
+            temp = temp->next;
+        }
+        std::cout << "NULL";
+      }
+
+    void insert_first(int value) {
+        node *temp = new node;
+        temp->data = value;
+
+        if(head == NULL) {
+            head = temp;
+            tail = temp;
+            temp = NULL;
+        } else {
+            temp->next = head;  // point the new node to head
+            head = temp; // move head back one, to the new node
+        }
+    }
+
+    void insert_last(int value) {
+        node *temp = new node;
+        temp->data = value;
+        temp->next = NULL; // temp doesnt point to anything
+        if(head == NULL) {
+            head = temp;
+            tail = temp;
+            temp = NULL;
+        } else {
+            tail->next = temp; // point current tail to temp
+            tail = temp; // move tail to the new node
+        }        
+    } 
+
+    void remove_first() {
+        if(head == tail) {
+            std::cout << "entered head == tail";
+            head = NULL;
+            tail = NULL;
+        }
+        if (head == NULL) {
+            std::cout << "entered head == NULL";
+            throw "llist is empty, cannot remove a node";
+        }
+
+        node *temp = new node;
+        temp = head;
+        head = head->next;
+        delete temp;
+    }
+
+    void remove_last() {
+        if (head == tail) {
+            std::cout << "entered head == tail";
+            head = NULL;
+            tail = NULL;
+        }
+        if (head == NULL) {
+            std::cout << "entered head == NULL";
+            throw "llist is empty, cannot remove a node";
+        }
+
+        node *curr = new node;
+        node *prev = new node;
+        curr = head;
+        while(curr->next != NULL) { // start at head and iterate over llist
+          prev = curr;
+          curr = curr->next;    
+        }
+        tail=prev;
+        prev->next=NULL;
+        delete curr;
+    }
+
+};
 
 class PathEnumeration {
 private:
@@ -15,26 +125,26 @@ private:
     ListDigraph::Node _src;
     ListDigraph::Node _trg;
     ListDigraph::NodeMap<int> _deg;
+    ListDigraph::NodeMap<bool> _visited;
 	ListDigraph::NodeMap<bool> _contains;
-	vector<ListDigraph::Node> _pathlist;
+	std::vector<ListDigraph::Node> _pathlist;
 	ListDigraph::ArcMap<bool> _filter;
 	//Dfs<ListDigraph> _dfs(const ListDigraph& _gr);
     //FilterArcs<ListDigraph> _subgraph;
     //Dfs<FilterArcs<ListDigraph> > _sub_dfs;  //(filterArcs(gr, filter));
 
 public:
-    PathEnumeration(const ListDigraph& gr, ListDigraph::Node& src, ListDigraph::Node& trg) : _gr(gr), _deg(gr), _filter(gr), _contains(gr) {
+    PathEnumeration(const ListDigraph& gr, ListDigraph::Node& src, ListDigraph::Node& trg) : _gr(gr), _deg(gr), _visited(gr), _filter(gr), _contains(gr) {
         for (ListDigraph::NodeIt u(gr); u != INVALID; ++u) {
             _deg[u] = countOutArcs(gr, u);
+        }
+        for(ListDigraph::NodeIt u(gr); u != INVALID; ++u) {
+            _visited[u] = false;
         }
         for (ListDigraph::ArcIt a(gr); a != INVALID; ++a){
         	_filter[a] = true; //initialize every path to be valid at start	
         }
     }
-
-    const ListDigraph::Node& operator[](int index) const {
-        return _pathlist[index];
-    } 
     
     int outArcs(const ListDigraph::Node& u) const {
         return _deg[u];
@@ -47,20 +157,42 @@ public:
     bool contains(const ListDigraph::Node& u) const {
         return _contains[u];
     }
+
+    bool visited(const ListDigraph::Node& u) const {
+        return _visited[u];
+    }
+
+    const ListDigraph::Node& operator[](int index) const {
+        return _pathlist[index];
+    } 
   
     void push(const ListDigraph::Node& u) {
         //_contains[u] = true; // the node is in the path
+        _visited[u] = true; // the node has been visited
         _pathlist.push_back(u);
+
+        int sz = _pathlist.size();
+        for(int i = 0; i < sz; i++) {
+            std::cout << _gr.id(_pathlist[i]) << std::endl;    
+        }
     }
-    
-    void pop(const ListDigraph::Node& u) {
+
+    void pop() {
+        int sz = _pathlist.size();
+        const ListDigraph::Node& u = _pathlist.back();
         _pathlist.pop_back();
-        ListDigraph::Node& v = _pathlist.back();
-        _contains[u] = false; // the node is removed from the path
-        for (ListDigraph::InArcIt a(_gr, u); a != INVALID; ++a) {
-        	if(_gr.source(a) == v && _gr.target(a) == u) {
-        		_filter[a] = false;	// the edge is hidden in the subgraph
-        	}
+        _contains[u] = false;
+        const ListDigraph::Node& v = _pathlist[sz-2];//.back();
+
+        for (ListDigraph::OutArcIt a(_gr, u); a != INVALID; ++a) {
+            std::cout << "entered the outarcit" << std::endl;
+            std::cout << "u is " << _gr.id(u) << std::endl;
+            std::cout << "and v is " << _gr.id(v) << std::endl;
+            if(_gr.source(a) == u && _gr.target(a) == v) {
+                std::cout << "entered the double if" << std::endl;
+                _filter[a] = false; // the edge is hidden in the subgraph
+                _deg[_gr.source(a)]--;
+            }
         }
     }
 };
@@ -127,7 +259,7 @@ int main() {
     for(ListDigraph::NodeIt u(gr); u != INVALID; ++u) {
     	if (u == enumeration[d-1]){
             std::cout << "entered" << std::endl;
-    		enumeration.pop(u);
+    		enumeration.pop();
     	}
     }
 
@@ -135,6 +267,29 @@ int main() {
     for(int i=0; i < d; i++) {
     	std::cout << gr.id(enumeration[i]) << std::endl;
     }
+
+    // Making sure that the number of arcs in the instantiated graph is correct
+    count = 0;
+    for(ListDigraph::ArcIt a(gr); a != INVALID; ++a) {
+        if(enumeration.filter(a) == true) {
+            count++;
+        }   
+    }
+    std::cout << "There are " << count << " arcs in the instantiation of enumeration." << std::endl;
+
+
+    llist testlist;
+    testlist.add_node(1);
+    testlist.add_node(2);
+    testlist.insert_first(0);
+    testlist.insert_last(4);
+    testlist.remove_last();
+    testlist.remove_first();
+    testlist.remove_first();
+    testlist.remove_first();
+    testlist.remove_first();
+    
+    testlist.display();
 
 //
 //    count = 0;
