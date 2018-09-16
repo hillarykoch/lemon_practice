@@ -1,6 +1,5 @@
 #include <iostream>
 #include <lemon/list_graph.h>
-#include <lemon/connectivity.h>
 #include <lemon/lgf_reader.h>
 #include <lemon/dfs.h>
 #include <lemon/adaptors.h>
