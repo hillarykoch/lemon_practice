@@ -91,7 +91,6 @@ class llist {
     }
 
     void remove_last() {
-        std::cout << "entering remove_last..." << std::endl;
         if (head == tail) {
             // If there is only one node, point head and tail to null
             std::cout << "really shouldn't be here lol" << std::endl;
@@ -111,8 +110,6 @@ class llist {
         tail=prev;
         prev->next=NULL;
         delete curr;
-
-        std::cout << "end of remove last" << std::endl;
     }
 
     void remove_at(int index) {
@@ -175,10 +172,7 @@ class PathEnumeration {
         int _len;
 
     public:
-        PathEnumeration(const ListDigraph& gr, ListDigraph::Node& src, ListDigraph::Node& trg) : _gr(gr), _deg(gr), _visited(gr), _contains(gr), _filter(gr) {
-            
-            //ListDigraph::ArcMap<bool> _filter;
-
+        PathEnumeration(const ListDigraph& gr, ListDigraph::Node& src, ListDigraph::Node& trg) :_gr(gr), _deg(gr), _visited(gr), _contains(gr), _filter(gr) {
             for (ListDigraph::NodeIt u(gr); u != INVALID; ++u) {
                 _deg[u] = countOutArcs(gr, u);
             }
@@ -254,7 +248,6 @@ class PathEnumeration {
     void pop_last() {
         // have not added something to handle when sz < 2
         // though this should never happen here
-        std::cout << "entering pop_last..." << std::endl;
         int sz = _pathlist.len();
         const ListDigraph::Node u = _pathlist[sz-1]; // The tail
         const ListDigraph::Node v = _pathlist[sz-2]; // The one before the tail
@@ -262,7 +255,6 @@ class PathEnumeration {
         for (ListDigraph::OutArcIt a(_gr, v); a != INVALID; ++a) {
             std::cout << "u is " << _gr.id(u) << " and v is " << _gr.id(v) << std::endl;
             if(_gr.source(a) == v && _gr.target(a) == u) {
-                std::cout << "entering the inner loop of pop_last..." << std::endl;
                 _filter[a] = false; // the edge is hidden in the subgraph
                 _deg[_gr.source(a)]--;
             }
@@ -289,7 +281,6 @@ class PathEnumeration {
         _contains[u] = false;
 
         for (ListDigraph::OutArcIt a(_gr, u); a != INVALID; ++a) {
-            std::cout << "entered the outarcit" << std::endl;
             std::cout << "u is " << _gr.id(u) << " and v is " << _gr.id(v) << std::endl;
             if(_gr.source(a) == u && _gr.target(a) == v) {
                 _filter[a] = false; // the edge is hidden in the subgraph
@@ -312,7 +303,8 @@ class PathEnumeration {
         ListDigraph::Node trg;
         ListDigraph::Node old_node;
         ListDigraph::Node curr_node;
-        std::vector<int> all_paths; // instantiate a resizable vector to contain all paths 
+        std::vector<int> all_paths; // instantiate a resizable vector to contain all paths
+        std::vector<int> temp; 
         int sz;
 
         // Read in Directed Graph from lgf.txt
@@ -358,7 +350,7 @@ class PathEnumeration {
                 enumeration.pop_last();
         		num_paths++;
 
-                std::cout << "the curr_node is " << gr.id(curr_node) << std::endl;
+                std::cout << "the current node is " << gr.id(curr_node) << std::endl;
             }
 //            else {
 //                
@@ -376,82 +368,128 @@ class PathEnumeration {
                     // move curr_node one back in the path
                     curr_node = enumeration[enumeration.len()-2];
 
-                    std::cout << "the current node has " << enumeration.outArcs(curr_node) << "outArcs" << std::endl;
+                    std::cout << "the current node is " << gr.id(curr_node) << std::endl;
+                    std::cout << "the current node has " << enumeration.outArcs(curr_node) << " outArcs" << std::endl;
+                    
                     if(enumeration.outArcs(curr_node) > 1) {
-                        // hide arc between new curr_node and old_node
-                        for(ListDigraph::OutArcIt a(gr, curr_node); a != INVALID; ++a) {
-                            std::cout << "entered the hiding of arc between old and curr node" << std::endl;
-                            if(gr.target(a) == old_node) {
-                                std::cout << "found the target arc" << std::endl;
-                                enumeration.negate_filter(a);
-                                break;
-                            }
-                        }
-    
-                        // decrement the # out arcs from new curr_node
-                        std::cout << "decrementing arcs..." << std::endl;
-                        enumeration.decrement_arcs(curr_node);
-    
-                        // pop the last node
-                        std::cout << "I only want to pop once!" << std::endl;
+                        // pop the last node (this automatically hides the arc decrements outArcs)
                         enumeration.pop_last();
-                        std::cout << "the length of enumeration is: " << enumeration.len() << std::endl;
-                        std::cout << "the pathlist is: ";
-                        for(int i = 0; i < enumeration.len(); i++){
-                            std::cout << gr.id(enumeration[i]) << std::endl;
-                        }
+
+                        std::cout << "the current node is " << gr.id(curr_node) << std::endl;
+                        std::cout << "the current node has " << enumeration.outArcs(curr_node) << " outArcs" << std::endl;
     
-                        std::cout << "approaching the filter update" << std::endl;
                         // update the subgraph for dfs based on filter
                         for(ListDigraph::ArcIt a(gr); a != INVALID; ++a) {
                             filter[a] = enumeration.filter(a);
                         }
     
-                        std::cout << "running sub_dfs..." << std::endl;
-                        std::cout << enumeration.outArcs(curr_node) << std::endl;
-                        std::cout << "the current node is: " << gr.id(curr_node) << std::endl;
                         // find a new path to the target node
+                        std::cout << "running sub_dfs..." << std::endl;
                         sub_dfs.run(curr_node,trg);
-                    }
 
-                    // Add path to all_paths
-                    // sz + d+2 = enumeration.len() when the enumeration is full
-                    std::cout << "the enumeration length is " << enumeration.len() << std::endl;
-                    for(int i = 0; i < enumeration.len(); i++) {
-                        std::cout << "adding enumeration to all_paths" << std::endl;
-                        all_paths.push_back(gr.id(enumeration[i]));
-                    }
-                    for(ListDigraph::NodeIt n(gr); n != INVALID; ++n) {
-                        if(sub_dfs.reached(n) && gr.id(n) != gr.id(curr_node)) {
-                            std::cout << "adding sub_dfs to all_paths" << std::endl;
-                            all_paths.push_back(gr.id(n));
+                        // Add path to all_paths
+                        sz = enumeration.len();
+                        for(int i = 0; i < sz; i++) {
+                            std::cout << "adding enumeration to all_paths" << std::endl;
+                            all_paths.push_back(gr.id(enumeration[i]));
                         }
+                        for(ListDigraph::NodeIt n(gr); n != INVALID; ++n) {
+                            if(sub_dfs.reached(n) && gr.id(n) != gr.id(curr_node)) {
+                                std::cout << "adding sub_dfs to all_paths" << std::endl;
+                                temp.push_back(gr.id(n));
+                            }
+                        }
+                        sort(temp.begin(), temp.end());
+                        for(int i = 0; i < temp.size(); i++){
+                            all_paths.push_back(temp[i]);
+                        }
+
+                        // Hide the most recent arc in the subgraph
+                        for(ListDigraph::OutArcIt a(gr, curr_node); a != INVALID; ++a) {
+                            if(gr.source(a) == curr_node && gr.id(gr.target(a)) == temp[0]) {
+                                cout << "the source of arc is " << gr.id(gr.source(a));
+                                cout << " and the target of arc is " << gr.id(gr.target(a)) << std::endl;
+                                enumeration.negate_filter(a);
+                                enumeration.decrement_arcs(curr_node);
+                                cout << "the filter on that arc is " << enumeration.filter(a);
+                            }
+                        }
+                        
+                        // empty out temp vector
+                        temp.clear();
+
+                        // increment total paths found
+                        num_paths++;
                     }
-                    //curr_node = enumeration[d+1];
-                    num_paths++;
 
                     std::cout << "Printing all_paths...\n";
                     sz = all_paths.size();
                     for(int i=0; i < sz; i++) {
                         std::cout << all_paths[i];
                     }
+                    std::cout << std::endl;
 
-                    std::cout << "current node has " << enumeration.outArcs(curr_node) << " outArcs";
-                } else {
+                } //else { // if (enumeration.outArcs(curr_node) != 0)
+                if(enumeration.outArcs(curr_node) != 0) {
+                    // update the subgraph for dfs based on filter
+                    for(ListDigraph::ArcIt a(gr); a != INVALID; ++a) {
+                        filter[a] = enumeration.filter(a);
+                    }
+
                     // find a new path to the target node
+                    std::cout << "running sub_dfs..." << std::endl;
+                    sub_dfs.run(curr_node,trg);
+
+                    // Add path to all_paths
+                    sz = enumeration.len();
+                    for(int i = 0; i < sz; i++) {
+                        std::cout << "adding enumeration to all_paths" << std::endl;
+                        all_paths.push_back(gr.id(enumeration[i]));
+                    }
+                    for(ListDigraph::NodeIt n(gr); n != INVALID; ++n) {
+                        if(sub_dfs.reached(n) && gr.id(n) != gr.id(curr_node)) {
+                            std::cout << "adding sub_dfs to all_paths" << std::endl;
+                            temp.push_back(gr.id(n));
+                        }
+                    }
+                    sort(temp.begin(), temp.end());
+                    for(int i = 0; i < temp.size(); i++){
+                        all_paths.push_back(temp[i]);
+                    }
+
+                    // Hide the most recent arc in the subgraph
+                    for(ListDigraph::OutArcIt a(gr, curr_node); a != INVALID; ++a) {
+                        if(gr.source(a) == curr_node && gr.id(gr.target(a)) == temp[0]) {
+                            cout << "the source of arc is " << gr.id(gr.source(a));
+                            cout << " and the target of arc is " << gr.id(gr.target(a));
+                            //enumeration.negate_filter(a);
+                            enumeration.decrement_arcs(curr_node);
+                        }
+                    }
+                    
+                    // empty out temp vector
+                    temp.clear();
+
+                    // increment total paths found
+                    num_paths++;
+
+
 
                     // record the path
 
-                    std::cout << "current node has no outgoing arcs!" << " outArcs";
+                    std::cout << "current node has no outgoing arcs!" << std::endl;
                 }
 
             }
-
+            std::cout << "the current node is " << gr.id(curr_node) << std::endl;
+            std::cout << "the current node has " << enumeration.outArcs(curr_node) << " outArcs" << std::endl;
             std::cout << "Printing all_paths...\n";
-            for(int i=0; i < enumeration.len(); i++) {
-                std::cout << all_paths[i];
-            }
-        
+                    sz = all_paths.size();
+                    for(int i=0; i < sz; i++) {
+                        std::cout << all_paths[i];
+                    }
+                    std::cout << std::endl;
+
             // Making sure that the number of arcs in the instantiated graph is correct
             count = 0;
             for(ListDigraph::ArcIt a(gr); a != INVALID; ++a) {
@@ -460,13 +498,6 @@ class PathEnumeration {
             	}	
             }
             std::cout << "There are " << count << " arcs in the instantiation of enumeration." << std::endl;
-        
-            // Taking a look at which nodes are in the current enumeration
-            std::cout << "the length of the pathlist is " << enumeration.len() << std::endl;
-            // d+2 = enumeration.len() when the enumeration is full
-            for(int i=0; i < enumeration.len(); i++) {
-            	std::cout << gr.id(enumeration[i]) << std::endl;
-            }
         //}    
     
     //int main() {
