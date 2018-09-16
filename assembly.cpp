@@ -9,7 +9,7 @@ using namespace lemon;
 using namespace std;
 
 struct node {
-    //int data;
+    int data;
     ListDigraph::Node data;
     node *next; // pointer called "next" points to node
 };
@@ -466,18 +466,12 @@ class PathEnumeration {
                             enumeration.decrement_arcs(curr_node);
                         }
                     }
-                    
+                
                     // empty out temp vector
                     temp.clear();
 
                     // increment total paths found
                     num_paths++;
-
-
-
-                    // record the path
-
-                    std::cout << "current node has no outgoing arcs!" << std::endl;
                 }
 
             }
