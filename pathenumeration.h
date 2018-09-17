@@ -50,7 +50,6 @@ class PathEnumeration {
         }
         
         const lemon::ListDigraph::Node& operator[](int index) const {
-            //return _pathlist[index];
             return _pathlist[index];
         } 
         
@@ -95,7 +94,7 @@ class PathEnumeration {
             // though this should never happen here
             int sz = _pathlist.len();
             const lemon::ListDigraph::Node u = _pathlist[sz-1]; // The tail
-            const lemon::ListDigraph::Node v = _pathlist[sz-2]; // The one before the tail
+            const lemon::ListDigraph::Node v = _pathlist[sz-2]; // The predecessor to the tail
         
             for (lemon::ListDigraph::OutArcIt a(_gr, v); a != lemon::INVALID; ++a) {
                 std::cout << "u is " << _gr.id(u) << " and v is " << _gr.id(v) << std::endl;

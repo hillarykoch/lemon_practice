@@ -23,7 +23,6 @@ make_LGF <- function(h, d, path) {
 
     # Make arc section of LGF file    
     consec <- get_consecutive(h)
-    #unions <- abind(consec, along = 1)
     
     src <- trg <- list()
     for(i in seq_along(consec)) {
