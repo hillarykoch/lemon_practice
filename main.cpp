@@ -3,6 +3,7 @@
 #include <lemon/lgf_reader.h>
 #include <lemon/dfs.h>
 #include <lemon/adaptors.h>
+#include <vector>
 #include "pathenumeration.h"
 #include "findPath.h"
 
@@ -23,7 +24,6 @@ int main() {
     ListDigraph::Node old_node;
     ListDigraph::Node curr_node;
     std::vector<int> all_paths; // instantiate a resizable vector to contain all paths
-    std::vector<int> temp;
 
     // Read in Directed Graph from lgf.txt
     // "attributes" source and target are declared to be nodes and named src and trg
@@ -42,9 +42,13 @@ int main() {
     int num_paths = 0;
     PathEnumeration enumeration(gr, src, trg);
 
-    std::vector<int> all_out;
-    all_out = findPath(gr, src, trg, enumeration, d, num_paths, all_paths, filter, curr_node);
-    cout << "test" << endl;
+    //all_paths = findPath(gr, src, trg, enumeration, d, num_paths, temp, filter, curr_node);
+    findPath(gr, src, trg, enumeration, d, num_paths, all_paths, filter, curr_node);
+    cout << "finished!!! these are the paths:\n" << endl;
+    for(int i = 0; i < all_paths.size(); i++){
+        cout << all_paths[i] << endl;
+    }
+    
 
 	return 0;
 }
