@@ -13,23 +13,17 @@ using namespace std;
 int main() {
     ListDigraph gr;
     ListDigraph::NodeMap<int> dim(gr);
-    ListDigraph::NodeMap<int> assoc(gr);
     ListDigraph::NodeMap<int> label(gr);
     Dfs<ListDigraph> dfs(gr);
     ListDigraph::ArcMap<bool> filter(gr);
-    FilterArcs<ListDigraph> subgraph(gr, filter);
-    Dfs<FilterArcs<ListDigraph> > sub_dfs(subgraph);
     ListDigraph::Node src;
     ListDigraph::Node trg;
-    ListDigraph::Node old_node;
     ListDigraph::Node curr_node;
     std::vector<int> all_paths; // instantiate a resizable vector to contain all paths
 
     // Read in Directed Graph from lgf.txt
     // "attributes" source and target are declared to be nodes and named src and trg
     digraphReader(gr, "lgf.txt")
-      .nodeMap("dim", dim)
-      .nodeMap("assoc", assoc)
       .nodeMap("label", label)
       .node("source", src)
       .node("target", trg)
