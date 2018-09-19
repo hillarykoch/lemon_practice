@@ -3,7 +3,6 @@
 #include <lemon/lgf_reader.h>
 #include <lemon/dfs.h>
 #include <lemon/adaptors.h>
-#include <vector>
 #include "pathenumeration.h"
 #include "findPath.h"
 
@@ -23,26 +22,32 @@ int main() {
 
     // Read in Directed Graph from lgf.txt
     // "attributes" source and target are declared to be nodes and named src and trg
+    // dim gives which "layer" the given node lies in
     digraphReader(gr, "lgf.txt")
       .nodeMap("label", label)
+      .nodeMap("dim", dim)
       .node("source", src)
       .node("target", trg)
       .run();
+
+    ListDigraph::NodeMap<int> layer(gr);
+    for(ListDigraph::NodeIt u(gr); u != INVALID; ++u) {
+        layer[u] = dim[u];
+    }
+
     int d = dim[trg]-1;
     
-    std::cout << "A DAG is built with " << countNodes(gr) << " nodes and " << countArcs(gr) << " arcs." << std::endl;
-    
     // Enumerate all paths using DFS and backtracking
-    int num_paths = 0;
+    int num_paths = 0; // when not 0, enter a different section of "findPath" function
     PathEnumeration enumeration(gr, src, trg);
 
-    //all_paths = findPath(gr, src, trg, enumeration, d, num_paths, temp, filter, curr_node);
-    findPath(gr, src, trg, enumeration, d, num_paths, all_paths, filter, curr_node);
-    cout << "finished!!! these are the paths:\n" << endl;
+    // findPath2(gr, src, trg, enumeration, d, num_paths, all_paths, filter, curr_node);
+    findPath(gr, src, trg, enumeration, d, num_paths, all_paths, filter, curr_node, layer);
+
+    cout << "finished! these are the paths:" << endl;
     for(int i = 0; i < all_paths.size(); i++){
         cout << all_paths[i] << endl;
     }
-    
 
 	return 0;
 }

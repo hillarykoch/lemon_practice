@@ -84,7 +84,7 @@ class llist {
         void remove_last() {
             if (head == tail) {
                 // If there is only one node, point head and tail to null
-                std::cout << "really shouldn't be here lol" << std::endl;
+                std::cout << "really shouldn't be here for my purposes" << std::endl;
                 head = NULL;
                 tail = NULL;
             }
